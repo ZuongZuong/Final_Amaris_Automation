@@ -9,6 +9,7 @@ import org.testng.annotations.BeforeMethod;
 import action.Keyword;
 import configuration.Configuration;
 import driver.DriverFactory;
+import utils.CookieUtil;
 import utils.LogUtils;
 
 import java.io.File;
@@ -25,12 +26,12 @@ public class BaseTest {
         this.driver = DriverFactory.getDriver(FrameworkConstants.BROWSER);
         this.keyword = new Keyword(driver);
         keyword.openUrl(FrameworkConstants.URL);
-//        CookieUtil.bypassIberiaCookie(driver);
         ((JavascriptExecutor) driver).executeScript(
                 "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
         );
 
-        this.driver.findElement(By.xpath("//div[@id=\"onetrust-button-group\"]//*[@id=\"onetrust-accept-btn-handler\"]")).click();
+        CookieUtil.bypassIberiaCookie(driver);
+        // this.driver.findElement(By.xpath("//div[@id=\"onetrust-button-group\"]//*[@id=\"onetrust-accept-btn-handler\"]")).click();
     }
 
     @AfterMethod
