@@ -29,3 +29,20 @@ dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
 .mvn/wrapper/maven-wrapper.jar
+
+
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# Runtime outputs
+logs/
+screenshots/
+
+# Reports
+allure-results/
+allure-report/
