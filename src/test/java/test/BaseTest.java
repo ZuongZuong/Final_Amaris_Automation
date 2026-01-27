@@ -1,6 +1,7 @@
 package test;
 
 import constants.FrameworkConstants;
+import io.qameta.allure.Attachment;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.testng.annotations.AfterMethod;
@@ -56,6 +57,12 @@ public class BaseTest {
         } catch (IOException e) {
             LogUtils.error("Failed to take screenshot: " + e.getMessage());
         }
+    }
+
+    @Attachment(value = "Failure Screenshot", type = "image/png")
+    public byte[] takeScreenshotForAllure() {
+        return ((TakesScreenshot) driver)
+                .getScreenshotAs(OutputType.BYTES);
     }
     
 }

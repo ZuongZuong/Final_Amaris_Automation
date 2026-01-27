@@ -3,12 +3,14 @@ package action;
 import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
 import constants.FrameworkConstants;
+import io.qameta.allure.Allure;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
@@ -29,21 +31,35 @@ public class Keyword {
 		this.action = new Actions(driver);
 	}
 
+	private void saveScreenshot(String name) {
+		try {
+			Allure.addAttachment(name, new ByteArrayInputStream(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)));
+		} catch (Exception e) {
+			LogUtils.error("Failed to save screenshot: " + e.getMessage());
+		}
+	}
+
 
 	public void openUrl(String url) throws Exception {
-		if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-			throw new Exception("Invalid URL format");
-        }
-		driver.get(url);
-        LogUtils.info("Opening URL: " + url);
+		Allure.step("Opening URL: " + url, () -> {
+			if (!(url.startsWith("http://") || url.startsWith("https://"))) {
+				throw new Exception("Invalid URL format");
+			}
+			driver.get(url);
+			LogUtils.info("Opening URL: " + url);
+			saveScreenshot("Open URL: " + url);
+		});
 	}
 
 	public void navigate(String url) throws Exception {
-		if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-			throw new Exception("Invalid URL format");
-		}
-		driver.navigate().to(url);
-        LogUtils.info("Navigating to URL: " + url);
+		Allure.step("Navigating to URL: " + url, () -> {
+			if (!(url.startsWith("http://") || url.startsWith("https://"))) {
+				throw new Exception("Invalid URL format");
+			}
+			driver.navigate().to(url);
+			LogUtils.info("Navigating to URL: " + url);
+			saveScreenshot("Navigate to URL: " + url);
+		});
 	}
 
 	public WebElement findElement(By locator) {
@@ -51,50 +67,62 @@ public class Keyword {
 	}
 
 	public void sendText(WebElement element, String text) {
-		try {
-			element.clear();
-			element.sendKeys(text);
-            LogUtils.info("Sending text to element: " + text);
-		} catch (WebDriverException e) {
-			throw new WebDriverException("Element is not enable to set text");
+		Allure.step("Sending text '" + text + "' to element", () -> {
+			try {
+				element.clear();
+				element.sendKeys(text);
+				LogUtils.info("Sending text to element: " + text);
+				saveScreenshot("Send Text: " + text);
+			} catch (WebDriverException e) {
+				throw new WebDriverException("Element is not enable to set text");
 
-		}
+			}
+		});
 	}
 
 	public void click(WebElement element) {
-		action.moveToElement(element).build().perform();
-		element.click();
-        LogUtils.info("Clicking on element: " + element);
+		Allure.step("Clicking on element", () -> {
+			action.moveToElement(element).build().perform();
+			element.click();
+			LogUtils.info("Clicking on element: " + element);
+			saveScreenshot("Click Element");
+		});
 	}
 
 	public void clickWithJs(WebElement element) {
-		executor = (JavascriptExecutor) this.driver;
-		executor.executeScript("arguments[0].click();", element);
-        LogUtils.info("Clicking on element: " + element);
+		Allure.step("Clicking on element with JS", () -> {
+			executor = (JavascriptExecutor) this.driver;
+			executor.executeScript("arguments[0].click();", element);
+			LogUtils.info("Clicking on element: " + element);
+			saveScreenshot("Click with JS");
+		});
 	}
 
 	public void select(WebElement element, SelectType type, String options) throws Exception {
-		Select select = new Select(element);
-		switch (type) {
-		case SELECT_BY_INDEX:
-			try {
-				select.selectByIndex(Integer.parseInt(options));
-                LogUtils.info("Selected by index: " + options);
-			} catch (Exception e) {
-				throw new Exception("Please input numberic on selectOption for SelectType.SelectByIndex");
+		Allure.step("Selecting option '" + options + "' by " + type, () -> {
+			Select select = new Select(element);
+			switch (type) {
+			case SELECT_BY_INDEX:
+				try {
+					select.selectByIndex(Integer.parseInt(options));
+					LogUtils.info("Selected by index: " + options);
+				} catch (Exception e) {
+					throw new Exception("Please input numberic on selectOption for SelectType.SelectByIndex");
+				}
+				break;
+			case SELECT_BY_TEXT:
+				select.selectByVisibleText(options);
+				LogUtils.info("Selected by text: " + options);
+				break;
+			case SELECT_BY_VALUE:
+				select.selectByValue(options);
+				LogUtils.info("Selected by value: " + options);
+				break;
+			default:
+				throw new Exception("Get error in using Selected");
 			}
-			break;
-		case SELECT_BY_TEXT:
-			select.selectByVisibleText(options);
-            LogUtils.info("Selected by text: " + options);
-			break;
-		case SELECT_BY_VALUE:
-			select.selectByValue(options);
-            LogUtils.info("Selected by value: " + options);
-			break;
-		default:
-			throw new Exception("Get error in using Selected");
-		}
+			saveScreenshot("Select Option: " + options);
+		});
 	}
 
 	public enum SelectType {
@@ -102,7 +130,7 @@ public class Keyword {
 	}
 
 	public String getTitle() {
-        LogUtils.info("Getting title");
+		LogUtils.info("Getting title");
 		return driver.getTitle();
 	}
 
@@ -111,9 +139,12 @@ public class Keyword {
 	}
 
 	public void enter() {
-		action = new Actions(driver);
-		action.sendKeys(Keys.ENTER).build().perform();
-        LogUtils.info("Entering keyboard");
+		Allure.step("Pressing ENTER key", () -> {
+			action = new Actions(driver);
+			action.sendKeys(Keys.ENTER).build().perform();
+			LogUtils.info("Entering keyboard");
+			saveScreenshot("Press Enter");
+		});
 	}
 
 	public List<WebElement> findElements(String value) throws Exception {
@@ -148,94 +179,126 @@ public class Keyword {
 		return elements;
 	}
 
-	public void iFrameHandle(By iFrameNodeSelector,By iFrameBodySelector, String text) throws InterruptedException {
-		WebElement iframeElem = driver.findElement(iFrameNodeSelector);
-		driver.switchTo().frame(iframeElem);
-		Thread.sleep(10);
-		WebElement iframeBodyElem = driver.findElement(iFrameBodySelector);
-		iframeBodyElem.clear();
-		iframeBodyElem.sendKeys(text);
-        LogUtils.info("IFrameHandle found text: " + text);
+	public void iFrameHandle(By iFrameNodeSelector,By iFrameBodySelector, String text) {
+		Allure.step("Handling iFrame and sending text: " + text, () -> {
+			try {
+				WebElement iframeElem = driver.findElement(iFrameNodeSelector);
+				driver.switchTo().frame(iframeElem);
+				Thread.sleep(10);
+				WebElement iframeBodyElem = driver.findElement(iFrameBodySelector);
+				iframeBodyElem.clear();
+				iframeBodyElem.sendKeys(text);
+				LogUtils.info("IFrameHandle found text: " + text);
+				saveScreenshot("Handle iFrame");
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 
-	public void dndHandle(By leftColumnSelector,By rightColumnSelector) throws AWTException {
-		WebElement leftColumnElem = driver.findElement(leftColumnSelector);
-		WebElement rightColumnElem = driver.findElement(rightColumnSelector);
+	public void dndHandle(By leftColumnSelector,By rightColumnSelector) {
+		Allure.step("Drag and Drop", () -> {
+			try {
+				WebElement leftColumnElem = driver.findElement(leftColumnSelector);
+				WebElement rightColumnElem = driver.findElement(rightColumnSelector);
 
-		Robot robot = new Robot();
-		robot.setAutoDelay(500);
+				Robot robot = new Robot();
+				robot.setAutoDelay(500);
 
-		// Get size from all elements
+				// Get size from all elements
 
-		Dimension fromSize = leftColumnElem.getSize();
-		Dimension toSize = rightColumnElem.getSize();
+				Dimension fromSize = leftColumnElem.getSize();
+				Dimension toSize = rightColumnElem.getSize();
 
-		//Get the location for all elemets
-		Point fromLocation = leftColumnElem.getLocation();
-		Point toLocation = rightColumnElem.getLocation();
+				//Get the location for all elemets
+				Point fromLocation = leftColumnElem.getLocation();
+				Point toLocation = rightColumnElem.getLocation();
 
 
-		// CAlculate the cordinate for the moves
-		fromLocation.x += fromSize.width / 2;
-		fromLocation.y += fromSize.height / 2 + fromSize.height;
-		toLocation.x += toSize.width /2;
-		toLocation.y += toSize.height /2 + toSize.height;
+				// CAlculate the cordinate for the moves
+				fromLocation.x += fromSize.width / 2;
+				fromLocation.y += fromSize.height / 2 + fromSize.height;
+				toLocation.x += toSize.width /2;
+				toLocation.y += toSize.height /2 + toSize.height;
 
-		// Use the robot instance to make the moves
+				// Use the robot instance to make the moves
 
-		robot.mousePress(InputEvent.BUTTON1_MASK);
-		robot.mouseMove(fromLocation.x,fromLocation.y);
-		robot.mousePress(InputEvent.BUTTON1_MASK);
+				robot.mousePress(InputEvent.BUTTON1_MASK);
+				robot.mouseMove(fromLocation.x,fromLocation.y);
+				robot.mousePress(InputEvent.BUTTON1_MASK);
 
-		// Move to the target position
-		robot.mouseMove(toLocation.x,toLocation.y);
+				// Move to the target position
+				robot.mouseMove(toLocation.x,toLocation.y);
 
-		// Release the mouse
-		robot.mouseRelease(InputEvent.BUTTON1_MASK);
+				// Release the mouse
+				robot.mouseRelease(InputEvent.BUTTON1_MASK);
+				saveScreenshot("Drag and Drop");
+			} catch (AWTException e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 
 	public void JsAlert(By jsAlertSelector ) {
-		driver.findElement(jsAlertSelector).click();
-		WebDriverWait wait = new WebDriverWait(driver,30);
-		Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-		alert.accept();
+		Allure.step("Handling JS Alert", () -> {
+			driver.findElement(jsAlertSelector).click();
+			WebDriverWait wait = new WebDriverWait(driver,30);
+			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+			alert.accept();
+			saveScreenshot("Handle JS Alert");
+		});
 	}
 
 	public void JsConfirmAlert(By jsConfirmbtnSelector) {
-		driver.findElement(jsConfirmbtnSelector).click();
-		Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-		alert = wait.until(ExpectedConditions.alertIsPresent());
-		alert.accept();
+		Allure.step("Handling JS Confirm Alert", () -> {
+			driver.findElement(jsConfirmbtnSelector).click();
+			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+			alert = wait.until(ExpectedConditions.alertIsPresent());
+			alert.accept();
+			saveScreenshot("Handle JS Confirm Alert");
+		});
 	}
 
 	public void JsPomptAlert(By jsPromtSelector, String sendtext) {
-		driver.findElement(jsPromtSelector).click();
-		Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+		Allure.step("Handling JS Prompt Alert with text: " + sendtext, () -> {
+			driver.findElement(jsPromtSelector).click();
+			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
 
-		alert.sendKeys(sendtext);
-		alert.accept();
+			alert.sendKeys(sendtext);
+			alert.accept();
+			saveScreenshot("Handle JS Prompt Alert");
+		});
 	}
 
 	public void rightClickHandle(By Locator ) {
-		Actions actions = new Actions(driver);
-		WebElement RightClickPlaceElem = driver.findElement(Locator);
-		actions.contextClick(RightClickPlaceElem).perform();
-        LogUtils.info("Right click found text: " + RightClickPlaceElem.getText());
+		Allure.step("Right clicking on element", () -> {
+			Actions actions = new Actions(driver);
+			WebElement RightClickPlaceElem = driver.findElement(Locator);
+			actions.contextClick(RightClickPlaceElem).perform();
+			LogUtils.info("Right click found text: " + RightClickPlaceElem.getText());
 
-		WebDriverWait wait = new WebDriverWait(driver,30);
-		Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-		alert.accept();
+			WebDriverWait wait = new WebDriverWait(driver,30);
+			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+			alert.accept();
+			saveScreenshot("Right Click");
+		});
 	}
 
 	public void waitUntilElementDisplayed(WebElement element) {
-		WebDriverWait wait = new WebDriverWait(driver, 30);
-		wait.until(ExpectedConditions.visibilityOf(element));
-        LogUtils.info("Element Displayed: " + element.getText());
+		Allure.step("Waiting until element is displayed", () -> {
+			WebDriverWait wait = new WebDriverWait(driver, 30);
+			wait.until(ExpectedConditions.visibilityOf(element));
+			LogUtils.info("Element Displayed: " + element.getText());
+			saveScreenshot("Wait Element Display");
+		});
 	}
 
 	public void hoverOnElement(WebElement element) {
-		Actions actions = new Actions(driver);
-		actions.moveToElement(element).build().perform();
-        LogUtils.info("Element Hovered: " + element.getText());
+		Allure.step("Hovering on element", () -> {
+			Actions actions = new Actions(driver);
+			actions.moveToElement(element).build().perform();
+			LogUtils.info("Element Hovered: " + element.getText());
+			saveScreenshot("Hover Element");
+		});
 	}
 }

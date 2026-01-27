@@ -1,5 +1,8 @@
 package page;
 
+
+import io.qameta.allure.Allure;
+import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -48,26 +51,32 @@ public class DashboardPage extends BasePage {
     }
 
     // === Action ===
+    @Step("Select departure {departure}")
     public void selectDepature(String depature){
         keyword.sendText(txtDeparture, depature);
 //        keyword.click(driver.findElement(By.xpath(String.format(drpdwnLocation, depature))));
     }
 
+    @Step("Select destination {destination}")
     public void selectDestination(String destination){
         keyword.sendText(txtDestination, destination);
 //        keyword.click(driver.findElement(By.xpath(String.format(drpdwnLocation, destination))));
     }
 
+    @Step("Click Search button")
     public void clickSearch(){
         keyword.click(btnSearch);
     }
 
+    @Step("Select {option}")
     public void selectTripOption(String option){
         keyword.click(optTrip);
         keyword.click(driver.findElement(By.xpath(String.format(optTripSelection, option))));
     }
 
+    @Step("Set departure date {text}")
     public void setTextDeparture(String text){
+        Allure.step("set departure date");
         keyword.sendText(txtDepatureDate, text);
     }
 
