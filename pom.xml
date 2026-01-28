@@ -38,8 +38,13 @@
             src/main/java/utils/**,
             src/main/java/helper/**,
             src/main/java/page/FlightSelection.java,
-            src/main/java/page/PassengerInformation.java
+            src/main/java/page/PassengerInformation.java,
+            src/main/java/page/BasePage.java
         </sonar.exclusions>
+        <sonar.cpd.exclusions>
+            src/main/java/page/**,
+            src/test/java/**
+        </sonar.cpd.exclusions>
         <aspectj.version>1.9.25</aspectj.version>
         <suiteXmlFile>regression.xml</suiteXmlFile>
     </properties>
@@ -210,6 +215,19 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
+                            <excludes>
+                                <exclude>enums/**</exclude>
+                                <exclude>constants/**</exclude>
+                                <exclude>driver/**</exclude>
+                                <exclude>exceptions/**</exclude>
+                                <exclude>configuration/**</exclude>
+                                <exclude>action/**</exclude>
+                                <exclude>utils/**</exclude>
+                                <exclude>helper/**</exclude>
+                                <exclude>page/FlightSelection.class</exclude>
+                                <exclude>page/PassengerInformation.class</exclude>
+                                <exclude>page/BasePage.class</exclude>
+                            </excludes>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>

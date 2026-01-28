@@ -6,6 +6,9 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.CacheLookup;
 import org.openqa.selenium.support.FindBy;
+import utils.LogUtils;
+
+import java.util.List;
 
 public class DashboardPage extends BasePage {
 
@@ -29,10 +32,23 @@ public class DashboardPage extends BasePage {
     @CacheLookup
     private WebElement btnSearch;
 
-    private String optTripSelection = "//li[@class='ui-menu-item']//span[text()='%s']";
+    private static final String OPT_TRIP_SELECTION = "//li[@class='ui-menu-item']//span[text()='%s']";
 
     public DashboardPage(WebDriver driver) {
         super(driver);
+    }
+
+    @Step("Accept cookies if present")
+    public void acceptCookies() {
+        By cookieBtn = By.id("onetrust-accept-btn-handler");
+        try {
+            List<WebElement> buttons = keyword.findElements(cookieBtn);
+            if (!buttons.isEmpty() && buttons.get(0).isDisplayed()) {
+                keyword.click(buttons.get(0));
+            }
+        } catch (Exception e) {
+            LogUtils.warn("Cookie banner not found or not clickable: " + e.getMessage());
+        }
     }
 
     @Step("Select departure: {departure}")
@@ -53,8 +69,8 @@ public class DashboardPage extends BasePage {
     @Step("Select trip option: {option}")
     public void selectTripOption(String option) {
         keyword.click(optTrip);
-        By optionLocator = By.xpath(String.format(optTripSelection, option));
-        keyword.click(driver.findElement(optionLocator));
+        By optionLocator = By.xpath(String.format(OPT_TRIP_SELECTION, option));
+        keyword.click(keyword.findElement(optionLocator));
     }
 
     @Step("Set departure date: {text}")
