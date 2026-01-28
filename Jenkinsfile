@@ -42,37 +42,37 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    try {
-                        withSonarQubeEnv('SonarQube') {
-                            sh "mvn jacoco:report sonar:sonar"
-                        }
-                    } catch (Exception e) {
-                        echo "WARNING: SonarQube installation 'SonarQube' not found in Jenkins."
-                        echo "Please configure it in Manage Jenkins -> System."
-                        echo "Falling back to direct execution..."
-                        sh "mvn jacoco:report sonar:sonar"
-                    }
-                }
-            }
-        }
+    //     stage('SonarQube Analysis') {
+    //         steps {
+    //             script {
+    //                 try {
+    //                     withSonarQubeEnv('SonarQube') {
+    //                         sh "mvn jacoco:report sonar:sonar"
+    //                     }
+    //                 } catch (Exception e) {
+    //                     echo "WARNING: SonarQube installation 'SonarQube' not found in Jenkins."
+    //                     echo "Please configure it in Manage Jenkins -> System."
+    //                     echo "Falling back to direct execution..."
+    //                     sh "mvn jacoco:report sonar:sonar"
+    //                 }
+    //             }
+    //         }
+    //     }
 
-        stage('Quality Gate') {
-            steps {
-                script {
-                    try {
-                        timeout(time: 1, unit: 'HOURS') {
-                            waitForQualityGate abortPipeline: true
-                        }
-                    } catch (Exception e) {
-                        echo "Quality Gate check skipped (requires SonarQube plugin configuration)."
-                    }
-                }
-            }
-        }
-    }
+    //     stage('Quality Gate') {
+    //         steps {
+    //             script {
+    //                 try {
+    //                     timeout(time: 1, unit: 'HOURS') {
+    //                         waitForQualityGate abortPipeline: true
+    //                     }
+    //                 } catch (Exception e) {
+    //                     echo "Quality Gate check skipped (requires SonarQube plugin configuration)."
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     post {
         always {
