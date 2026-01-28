@@ -35,6 +35,19 @@ public class DashboardPage extends BasePage {
         super(driver);
     }
 
+    @Step("Accept cookies")
+    public void acceptCookies() {
+        By cookieBtn = By.id("onetrust-accept-btn-handler");
+        if (keyword.findElements(cookieBtn).size() > 0) {
+            keyword.click(driver.findElement(cookieBtn));
+        } else {
+            By alternateBtn = By.xpath("//button[contains(text(),'Aceptar')]");
+            if (keyword.findElements(alternateBtn).size() > 0) {
+                keyword.click(driver.findElement(alternateBtn));
+            }
+        }
+    }
+
     @Step("Select departure {departure}")
     public void selectDepature(String departure) {
         keyword.sendText(txtDeparture, departure);

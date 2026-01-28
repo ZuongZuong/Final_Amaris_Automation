@@ -30,6 +30,7 @@
         <!-- Exclusions to improve coverage rating by ignoring non-logic classes -->
         <sonar.exclusions>src/main/java/enums/**, src/main/java/constants/**, src/main/java/driver/**, src/main/java/exceptions/**, src/main/java/configuration/**, src/main/java/action/**</sonar.exclusions>
         <aspectj.version>1.9.25</aspectj.version>
+        <suiteXmlFile>regression.xml</suiteXmlFile>
     </properties>
 
     <dependencies>
@@ -150,7 +151,7 @@
                         </allure.results.directory>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
-                        <suiteXmlFile>${project.basedir}/regression.xml</suiteXmlFile>
+                        <suiteXmlFile>${suiteXmlFile}</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
                 <dependencies>

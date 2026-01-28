@@ -33,12 +33,12 @@ public class Keyword {
 
 	private void saveScreenshot(String name) {
 		try {
-			Allure.addAttachment(name, new ByteArrayInputStream(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)));
+			Allure.addAttachment(name,
+					new ByteArrayInputStream(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)));
 		} catch (Exception e) {
 			LogUtils.error("Failed to save screenshot: " + e.getMessage());
 		}
 	}
-
 
 	public void openUrl(String url) throws Exception {
 		Allure.step("Opening URL: " + url, () -> {
@@ -102,24 +102,24 @@ public class Keyword {
 		Allure.step("Selecting option '" + options + "' by " + type, () -> {
 			Select select = new Select(element);
 			switch (type) {
-			case SELECT_BY_INDEX:
-				try {
-					select.selectByIndex(Integer.parseInt(options));
-					LogUtils.info("Selected by index: " + options);
-				} catch (Exception e) {
-					throw new Exception("Please input numberic on selectOption for SelectType.SelectByIndex");
-				}
-				break;
-			case SELECT_BY_TEXT:
-				select.selectByVisibleText(options);
-				LogUtils.info("Selected by text: " + options);
-				break;
-			case SELECT_BY_VALUE:
-				select.selectByValue(options);
-				LogUtils.info("Selected by value: " + options);
-				break;
-			default:
-				throw new Exception("Get error in using Selected");
+				case SELECT_BY_INDEX:
+					try {
+						select.selectByIndex(Integer.parseInt(options));
+						LogUtils.info("Selected by index: " + options);
+					} catch (Exception e) {
+						throw new Exception("Please input numberic on selectOption for SelectType.SelectByIndex");
+					}
+					break;
+				case SELECT_BY_TEXT:
+					select.selectByVisibleText(options);
+					LogUtils.info("Selected by text: " + options);
+					break;
+				case SELECT_BY_VALUE:
+					select.selectByValue(options);
+					LogUtils.info("Selected by value: " + options);
+					break;
+				default:
+					throw new Exception("Get error in using Selected");
 			}
 			saveScreenshot("Select Option: " + options);
 		});
@@ -147,39 +147,43 @@ public class Keyword {
 		});
 	}
 
+	public List<WebElement> findElements(By locator) {
+		return driver.findElements(locator);
+	}
+
 	public List<WebElement> findElements(String value) throws Exception {
 		List<WebElement> elements = null;
 		String locatorType = value.split(";")[0];
 		String locatorValue = value.split(";")[1];
 		switch (locatorType.toLowerCase()) {
-		case "id":
-			elements = driver.findElements(By.id(locatorValue));
-			break;
-		case "name":
-			elements = driver.findElements(By.name(locatorValue));
-			break;
-		case "xpath":
-			elements = driver.findElements(By.xpath(locatorValue));
-			break;
-		case "tag":
-			elements = driver.findElements(By.tagName(locatorValue));
-			break;
-		case "link":
-			elements = driver.findElements(By.linkText(locatorValue));
-			break;
-		case "css":
-			elements = driver.findElements(By.cssSelector(locatorValue));
-			break;
-		case "class":
-			elements = driver.findElements(By.className(locatorValue));
-			break;
-		default:
-			throw new Exception("Support FindElement with 'id' 'name' 'xpath' 'tag' 'link' 'css' 'class'");
+			case "id":
+				elements = driver.findElements(By.id(locatorValue));
+				break;
+			case "name":
+				elements = driver.findElements(By.name(locatorValue));
+				break;
+			case "xpath":
+				elements = driver.findElements(By.xpath(locatorValue));
+				break;
+			case "tag":
+				elements = driver.findElements(By.tagName(locatorValue));
+				break;
+			case "link":
+				elements = driver.findElements(By.linkText(locatorValue));
+				break;
+			case "css":
+				elements = driver.findElements(By.cssSelector(locatorValue));
+				break;
+			case "class":
+				elements = driver.findElements(By.className(locatorValue));
+				break;
+			default:
+				throw new Exception("Support FindElement with 'id' 'name' 'xpath' 'tag' 'link' 'css' 'class'");
 		}
 		return elements;
 	}
 
-	public void iFrameHandle(By iFrameNodeSelector,By iFrameBodySelector, String text) {
+	public void iFrameHandle(By iFrameNodeSelector, By iFrameBodySelector, String text) {
 		Allure.step("Handling iFrame and sending text: " + text, () -> {
 			try {
 				WebElement iframeElem = driver.findElement(iFrameNodeSelector);
@@ -196,7 +200,7 @@ public class Keyword {
 		});
 	}
 
-	public void dndHandle(By leftColumnSelector,By rightColumnSelector) {
+	public void dndHandle(By leftColumnSelector, By rightColumnSelector) {
 		Allure.step("Drag and Drop", () -> {
 			try {
 				WebElement leftColumnElem = driver.findElement(leftColumnSelector);
@@ -210,25 +214,24 @@ public class Keyword {
 				Dimension fromSize = leftColumnElem.getSize();
 				Dimension toSize = rightColumnElem.getSize();
 
-				//Get the location for all elemets
+				// Get the location for all elemets
 				Point fromLocation = leftColumnElem.getLocation();
 				Point toLocation = rightColumnElem.getLocation();
-
 
 				// CAlculate the cordinate for the moves
 				fromLocation.x += fromSize.width / 2;
 				fromLocation.y += fromSize.height / 2 + fromSize.height;
-				toLocation.x += toSize.width /2;
-				toLocation.y += toSize.height /2 + toSize.height;
+				toLocation.x += toSize.width / 2;
+				toLocation.y += toSize.height / 2 + toSize.height;
 
 				// Use the robot instance to make the moves
 
 				robot.mousePress(InputEvent.BUTTON1_MASK);
-				robot.mouseMove(fromLocation.x,fromLocation.y);
+				robot.mouseMove(fromLocation.x, fromLocation.y);
 				robot.mousePress(InputEvent.BUTTON1_MASK);
 
 				// Move to the target position
-				robot.mouseMove(toLocation.x,toLocation.y);
+				robot.mouseMove(toLocation.x, toLocation.y);
 
 				// Release the mouse
 				robot.mouseRelease(InputEvent.BUTTON1_MASK);
@@ -239,10 +242,10 @@ public class Keyword {
 		});
 	}
 
-	public void JsAlert(By jsAlertSelector ) {
+	public void JsAlert(By jsAlertSelector) {
 		Allure.step("Handling JS Alert", () -> {
 			driver.findElement(jsAlertSelector).click();
-			WebDriverWait wait = new WebDriverWait(driver,30);
+			WebDriverWait wait = new WebDriverWait(driver, 30);
 			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
 			alert.accept();
 			saveScreenshot("Handle JS Alert");
@@ -270,14 +273,14 @@ public class Keyword {
 		});
 	}
 
-	public void rightClickHandle(By Locator ) {
+	public void rightClickHandle(By Locator) {
 		Allure.step("Right clicking on element", () -> {
 			Actions actions = new Actions(driver);
 			WebElement RightClickPlaceElem = driver.findElement(Locator);
 			actions.contextClick(RightClickPlaceElem).perform();
 			LogUtils.info("Right click found text: " + RightClickPlaceElem.getText());
 
-			WebDriverWait wait = new WebDriverWait(driver,30);
+			WebDriverWait wait = new WebDriverWait(driver, 30);
 			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
 			alert.accept();
 			saveScreenshot("Right Click");

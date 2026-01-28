@@ -21,11 +21,15 @@ public enum BrowserFactory {
             options.setExperimentalOption("prefs", prefs);
             options.addArguments("--start-maximized");
             options.addArguments("--disable-blink-features=AutomationControlled");
+            options.addArguments(
+                    "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
             options.setExperimentalOption("excludeSwitches", new String[] { "enable-automation" });
             options.setExperimentalOption("useAutomationExtension", false);
 
             if (Boolean.parseBoolean(FrameworkConstants.HEADLESS)) {
                 options.addArguments("--headless=new");
+                options.addArguments("--disable-gpu");
+                options.addArguments("--window-size=1920,1080");
             }
             options.setAcceptInsecureCerts(true);
             return options;
@@ -41,16 +45,15 @@ public enum BrowserFactory {
             }
             return options;
         }
-        // },
-        // EDGE {
-        // @Override
-        // public EdgeOptions getOptions() {
-        // EdgeOptions options = new EdgeOptions();
-        // if (Boolean.parseBoolean(FrameworkConstants.HEADLESS)) {
-        // options.addArguments("--headless");
-        // }
-        // return options;
-        // }
+    },
+    EDGE {
+        @Override
+        public EdgeOptions getOptions() {
+            EdgeOptions options = new EdgeOptions();
+            // EdgeOptions in Selenium 3.141.59 does not support addArguments directly
+            // Recommend upgrading to Selenium 4 for better Chromium Edge support
+            return options;
+        }
     };
 
     public abstract MutableCapabilities getOptions();
