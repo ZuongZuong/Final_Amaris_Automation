@@ -44,11 +44,20 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 script {
-                    // This requires the 'SonarQube Scanner for Jenkins' plugin
-                    // 'SonarQube' should match the name in Manage Jenkins -> Configure System
                     withSonarQubeEnv('SonarQube') {
-                        sh "mvn sonar:sonar"
+                        // Ensure coverage report is generated and then run analysis
+                        sh "mvn jacoco:report sonar:sonar"
                     }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    // This will wait for SonarQube to finish processing and return the result
+                    // Note: This requires a Webhook to be configured in SonarQube (pointing to Jenkins)
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }

@@ -25,6 +25,10 @@
         <sonar.sources>src/main/java</sonar.sources>
         <sonar.tests>src/test/java</sonar.tests>
         <sonar.java.binaries>target/classes</sonar.java.binaries>
+        <!-- JaCoCo XML report path for SonarQube -->
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <!-- Exclusions to improve coverage rating by ignoring non-logic classes -->
+        <sonar.exclusions>src/main/java/enums/**, src/main/java/constants/**, src/main/java/driver/**, src/main/java/exceptions/**, src/main/java/configuration/**, src/main/java/action/**</sonar.exclusions>
         <aspectj.version>1.9.25</aspectj.version>
     </properties>
 
@@ -186,6 +190,27 @@
                         <goals>
                             <goal>report</goal>
                         </goals>
+                    </execution>
+                    <execution>
+                        <id>check</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.80</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
