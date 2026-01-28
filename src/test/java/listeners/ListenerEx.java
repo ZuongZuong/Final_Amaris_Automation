@@ -25,8 +25,16 @@ public class ListenerEx implements ITestListener {
         LogUtils.error("Test Failed: " + result.getName());
         Object testClass = result.getInstance();
         if (testClass instanceof BaseTest) {
-            ((BaseTest) testClass).takeScreenShot(result.getName());
+            BaseTest baseTest = (BaseTest) testClass;
+            baseTest.takeScreenShot(result.getName());
+            baseTest.takeScreenshotForAllure();
+            saveTextLog("Test Failed: " + result.getName() + " - " + result.getThrowable().getMessage());
         }
+    }
+
+    @io.qameta.allure.Attachment(value = "{0}", type = "text/plain")
+    public static String saveTextLog(String message) {
+        return message;
     }
 
     @Override
