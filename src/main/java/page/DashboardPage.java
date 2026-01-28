@@ -1,5 +1,6 @@
 package page;
 
+import io.qameta.allure.Allure;
 import io.qameta.allure.Step;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -9,53 +10,55 @@ import org.openqa.selenium.support.FindBy;
 
 public class DashboardPage extends BasePage {
 
-    @FindBy(xpath = "//*[@placeholder='Origen']")
+    // === Locator ===
+    @FindBy(xpath = "//*[@placeholder=\"Departure\"]")
     @CacheLookup
-    private WebElement txtDeparture;
+    WebElement txtDeparture;
 
-    @FindBy(xpath = "//*[@placeholder='Destino']")
+    // @FindBy(xpath = "//*[@placeholder=\"Departure\"]")
+    // @CacheLookup
+    // WebElement drpdwnDeparture;
+
+    @FindBy(xpath = "//*[@placeholder=\"Destination\"]")
     @CacheLookup
-    private WebElement txtDestination;
+    WebElement txtDestination;
 
     @FindBy(xpath = "//*[@id=\"ticketops-seeker-button\"]")
     @CacheLookup
-    private WebElement optTrip;
+    WebElement optTrip;
 
-    @FindBy(xpath = "//input[@alt-placeholder='Fecha ida']")
+        @FindBy(xpath = "//input[@alt-placeholder=\"Departure date\"]")
     @CacheLookup
-    private WebElement txtDepatureDate;
+    WebElement txtDepatureDate;
 
-    @FindBy(xpath = "//button[@id='buttonSubmit1']")
+    // @FindBy(xpath = "//*[@placeholder=\"Departure\"]")
+    // @CacheLookup
+    // WebElement drpdwnTicketTrip;
+
+    @FindBy(xpath = "//button[@id=\"buttonSubmit1\"]")
     @CacheLookup
-    private WebElement btnSearch;
+    WebElement btnSearch;
 
-    private String optTripSelection = "//li[@class='ui-menu-item']//span[text()='%s']";
+    // a[@title="Valencia (VLC)" and contains(@class, 'ui-state-active')]
+    String drpdwnLocation = "//a[@title='%s' and contains(@class, 'ui-state-active')]";
+
+    String optTripSelection = "//li[@class=\"ui-menu-item\"]//span[text()='%s']";
 
     public DashboardPage(WebDriver driver) {
         super(driver);
     }
 
-    @Step("Accept cookies")
-    public void acceptCookies() {
-        By cookieBtn = By.id("onetrust-accept-btn-handler");
-        if (keyword.findElements(cookieBtn).size() > 0) {
-            keyword.click(driver.findElement(cookieBtn));
-        } else {
-            By alternateBtn = By.xpath("//button[contains(text(),'Aceptar')]");
-            if (keyword.findElements(alternateBtn).size() > 0) {
-                keyword.click(driver.findElement(alternateBtn));
-            }
-        }
-    }
-
+    // === Action ===
     @Step("Select departure {departure}")
-    public void selectDepature(String departure) {
-        keyword.sendText(txtDeparture, departure);
+    public void selectDepature(String depature) {
+        keyword.sendText(txtDeparture, depature);
     }
 
     @Step("Select destination {destination}")
     public void selectDestination(String destination) {
         keyword.sendText(txtDestination, destination);
+        // keyword.click(driver.findElement(By.xpath(String.format(drpdwnLocation,
+        // destination))));
     }
 
     @Step("Click Search button")
@@ -71,6 +74,13 @@ public class DashboardPage extends BasePage {
 
     @Step("Set departure date {text}")
     public void setTextDeparture(String text) {
+        Allure.step("set departure date");
         keyword.sendText(txtDepatureDate, text);
     }
+
+    // === Assertion ===
+    // public boolean isDashboardPageDisplayed() {
+    // return lblOverview.isDisplayed();
+    // }
+
 }
