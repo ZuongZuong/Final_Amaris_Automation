@@ -10,19 +10,19 @@ import org.openqa.selenium.support.FindBy;
 
 public class DashboardPage extends BasePage {
 
-    @FindBy(xpath = "//*[@placeholder='Departure']")
+    @FindBy(xpath = "//*[@placeholder='Origen']")
     @CacheLookup
     private WebElement txtDeparture;
 
-    @FindBy(xpath = "//*[@placeholder='Destination']")
+    @FindBy(xpath = "//*[@placeholder='Destino']")
     @CacheLookup
     private WebElement txtDestination;
 
-    @FindBy(xpath = "//*[@id='ticketops-seeker-button']")
+    @FindBy(xpath = "//*[@id=\"ticketops-seeker-button\"]")
     @CacheLookup
     private WebElement optTrip;
 
-    @FindBy(xpath = "//input[@alt-placeholder='Departure date']")
+    @FindBy(xpath = "//input[@alt-placeholder='Fecha ida']")
     @CacheLookup
     private WebElement txtDepatureDate;
 
