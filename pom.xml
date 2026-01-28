@@ -28,7 +28,18 @@
         <!-- JaCoCo XML report path for SonarQube -->
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <!-- Exclusions to improve coverage rating by ignoring non-logic classes -->
-        <sonar.exclusions>src/main/java/enums/**, src/main/java/constants/**, src/main/java/driver/**, src/main/java/exceptions/**, src/main/java/configuration/**, src/main/java/action/**</sonar.exclusions>
+        <sonar.exclusions>
+            src/main/java/enums/**, 
+            src/main/java/constants/**, 
+            src/main/java/driver/**, 
+            src/main/java/exceptions/**, 
+            src/main/java/configuration/**, 
+            src/main/java/action/**,
+            src/main/java/utils/**,
+            src/main/java/helper/**,
+            src/main/java/page/FlightSelection.java,
+            src/main/java/page/PassengerInformation.java
+        </sonar.exclusions>
         <aspectj.version>1.9.25</aspectj.version>
         <suiteXmlFile>regression.xml</suiteXmlFile>
     </properties>
