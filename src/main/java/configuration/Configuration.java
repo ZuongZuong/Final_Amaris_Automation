@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import utils.LogUtils;
+
 public class Configuration {
 
-	private Properties prop;
-	private InputStream input;
 	private String filePath;
 
 	public Configuration(String filePath) {
@@ -25,29 +25,13 @@ public class Configuration {
 		}
 
 		String result = "";
-		try {
-			prop = new Properties();
-			input = new FileInputStream(filePath);
-
-			if (input != null) {
-				prop.load(input);
-			} else {
-				throw new FileNotFoundException("property file '" + filePath + "' not found in the classpath");
-			}
-
+		try (InputStream input = new FileInputStream(filePath)) {
+			Properties prop = new Properties();
+			prop.load(input);
 			result = prop.getProperty(propertyName);
-		} catch (Exception e) {
-			System.out.println("Exception: " + e);
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
+		} catch (IOException e) {
+			LogUtils.error("Failed to load configuration file: " + filePath + " - " + e.getMessage());
 		}
-
 		return result;
 	}
 }

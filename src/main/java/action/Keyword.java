@@ -4,14 +4,9 @@ import java.awt.AWTException;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.time.Duration;
 import java.util.List;
 
-import constants.FrameworkConstants;
 import io.qameta.allure.Allure;
-import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -22,28 +17,28 @@ import utils.LogUtils;
 public class Keyword {
 	private WebDriver driver;
 	private WebDriverWait wait;
-	public JavascriptExecutor executor;
-	public Actions action;
+	private JavascriptExecutor executor;
+	private Actions actions;
 
 	public Keyword(WebDriver driver) {
 		this.driver = driver;
 		this.wait = new WebDriverWait(driver, 15);
-		this.action = new Actions(driver);
+		this.actions = new Actions(driver);
 	}
 
 	private void saveScreenshot(String name) {
 		try {
-			Allure.addAttachment(name, new ByteArrayInputStream(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)));
+			Allure.addAttachment(name,
+					new ByteArrayInputStream(((TakesScreenshot) driver).getScreenshotAs(OutputType.BYTES)));
 		} catch (Exception e) {
 			LogUtils.error("Failed to save screenshot: " + e.getMessage());
 		}
 	}
 
-
-	public void openUrl(String url) throws Exception {
+	public void openUrl(String url) {
 		Allure.step("Opening URL: " + url, () -> {
 			if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-				throw new Exception("Invalid URL format");
+				throw new IllegalArgumentException("Invalid URL format: " + url);
 			}
 			driver.get(url);
 			LogUtils.info("Opening URL: " + url);
@@ -51,10 +46,10 @@ public class Keyword {
 		});
 	}
 
-	public void navigate(String url) throws Exception {
+	public void navigate(String url) {
 		Allure.step("Navigating to URL: " + url, () -> {
 			if (!(url.startsWith("http://") || url.startsWith("https://"))) {
-				throw new Exception("Invalid URL format");
+				throw new IllegalArgumentException("Invalid URL format: " + url);
 			}
 			driver.navigate().to(url);
 			LogUtils.info("Navigating to URL: " + url);
@@ -82,7 +77,7 @@ public class Keyword {
 
 	public void click(WebElement element) {
 		Allure.step("Clicking on element", () -> {
-			action.moveToElement(element).build().perform();
+			actions.moveToElement(element).build().perform();
 			element.click();
 			LogUtils.info("Clicking on element: " + element);
 			saveScreenshot("Click Element");
@@ -102,24 +97,24 @@ public class Keyword {
 		Allure.step("Selecting option '" + options + "' by " + type, () -> {
 			Select select = new Select(element);
 			switch (type) {
-			case SELECT_BY_INDEX:
-				try {
-					select.selectByIndex(Integer.parseInt(options));
-					LogUtils.info("Selected by index: " + options);
-				} catch (Exception e) {
-					throw new Exception("Please input numberic on selectOption for SelectType.SelectByIndex");
-				}
-				break;
-			case SELECT_BY_TEXT:
-				select.selectByVisibleText(options);
-				LogUtils.info("Selected by text: " + options);
-				break;
-			case SELECT_BY_VALUE:
-				select.selectByValue(options);
-				LogUtils.info("Selected by value: " + options);
-				break;
-			default:
-				throw new Exception("Get error in using Selected");
+				case SELECT_BY_INDEX:
+					try {
+						select.selectByIndex(Integer.parseInt(options));
+						LogUtils.info("Selected by index: " + options);
+					} catch (Exception e) {
+						throw new Exception("Please input numberic on selectOption for SelectType.SelectByIndex");
+					}
+					break;
+				case SELECT_BY_TEXT:
+					select.selectByVisibleText(options);
+					LogUtils.info("Selected by text: " + options);
+					break;
+				case SELECT_BY_VALUE:
+					select.selectByValue(options);
+					LogUtils.info("Selected by value: " + options);
+					break;
+				default:
+					throw new Exception("Get error in using Selected");
 			}
 			saveScreenshot("Select Option: " + options);
 		});
@@ -140,63 +135,68 @@ public class Keyword {
 
 	public void enter() {
 		Allure.step("Pressing ENTER key", () -> {
-			action = new Actions(driver);
-			action.sendKeys(Keys.ENTER).build().perform();
+			actions.sendKeys(Keys.ENTER).build().perform();
 			LogUtils.info("Entering keyboard");
 			saveScreenshot("Press Enter");
 		});
 	}
 
-	public List<WebElement> findElements(String value) throws Exception {
+	public List<WebElement> findElements(By locator) {
+		return driver.findElements(locator);
+	}
+
+	public List<WebElement> findElements(String value) {
 		List<WebElement> elements = null;
-		String locatorType = value.split(";")[0];
-		String locatorValue = value.split(";")[1];
+		String[] split = value.split(";");
+		if (split.length < 2)
+			return null;
+		String locatorType = split[0];
+		String locatorValue = split[1];
 		switch (locatorType.toLowerCase()) {
-		case "id":
-			elements = driver.findElements(By.id(locatorValue));
-			break;
-		case "name":
-			elements = driver.findElements(By.name(locatorValue));
-			break;
-		case "xpath":
-			elements = driver.findElements(By.xpath(locatorValue));
-			break;
-		case "tag":
-			elements = driver.findElements(By.tagName(locatorValue));
-			break;
-		case "link":
-			elements = driver.findElements(By.linkText(locatorValue));
-			break;
-		case "css":
-			elements = driver.findElements(By.cssSelector(locatorValue));
-			break;
-		case "class":
-			elements = driver.findElements(By.className(locatorValue));
-			break;
-		default:
-			throw new Exception("Support FindElement with 'id' 'name' 'xpath' 'tag' 'link' 'css' 'class'");
+			case "id":
+				elements = driver.findElements(By.id(locatorValue));
+				break;
+			case "name":
+				elements = driver.findElements(By.name(locatorValue));
+				break;
+			case "xpath":
+				elements = driver.findElements(By.xpath(locatorValue));
+				break;
+			case "tag":
+				elements = driver.findElements(By.tagName(locatorValue));
+				break;
+			case "link":
+				elements = driver.findElements(By.linkText(locatorValue));
+				break;
+			case "css":
+				elements = driver.findElements(By.cssSelector(locatorValue));
+				break;
+			case "class":
+				elements = driver.findElements(By.className(locatorValue));
+				break;
+			default:
+				LogUtils.error("Locator type not supported: " + locatorType);
 		}
 		return elements;
 	}
 
-	public void iFrameHandle(By iFrameNodeSelector,By iFrameBodySelector, String text) {
+	public void iFrameHandle(By iFrameNodeSelector, By iFrameBodySelector, String text) {
 		Allure.step("Handling iFrame and sending text: " + text, () -> {
 			try {
 				WebElement iframeElem = driver.findElement(iFrameNodeSelector);
 				driver.switchTo().frame(iframeElem);
-				Thread.sleep(10);
 				WebElement iframeBodyElem = driver.findElement(iFrameBodySelector);
 				iframeBodyElem.clear();
 				iframeBodyElem.sendKeys(text);
 				LogUtils.info("IFrameHandle found text: " + text);
 				saveScreenshot("Handle iFrame");
-			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+			} catch (Exception e) {
+				throw new RuntimeException("Error interacting with iFrame", e);
 			}
 		});
 	}
 
-	public void dndHandle(By leftColumnSelector,By rightColumnSelector) {
+	public void dndHandle(By leftColumnSelector, By rightColumnSelector) {
 		Allure.step("Drag and Drop", () -> {
 			try {
 				WebElement leftColumnElem = driver.findElement(leftColumnSelector);
@@ -210,25 +210,24 @@ public class Keyword {
 				Dimension fromSize = leftColumnElem.getSize();
 				Dimension toSize = rightColumnElem.getSize();
 
-				//Get the location for all elemets
+				// Get the location for all elemets
 				Point fromLocation = leftColumnElem.getLocation();
 				Point toLocation = rightColumnElem.getLocation();
-
 
 				// CAlculate the cordinate for the moves
 				fromLocation.x += fromSize.width / 2;
 				fromLocation.y += fromSize.height / 2 + fromSize.height;
-				toLocation.x += toSize.width /2;
-				toLocation.y += toSize.height /2 + toSize.height;
+				toLocation.x += toSize.width / 2;
+				toLocation.y += toSize.height / 2 + toSize.height;
 
 				// Use the robot instance to make the moves
 
 				robot.mousePress(InputEvent.BUTTON1_MASK);
-				robot.mouseMove(fromLocation.x,fromLocation.y);
+				robot.mouseMove(fromLocation.x, fromLocation.y);
 				robot.mousePress(InputEvent.BUTTON1_MASK);
 
 				// Move to the target position
-				robot.mouseMove(toLocation.x,toLocation.y);
+				robot.mouseMove(toLocation.x, toLocation.y);
 
 				// Release the mouse
 				robot.mouseRelease(InputEvent.BUTTON1_MASK);
@@ -239,46 +238,45 @@ public class Keyword {
 		});
 	}
 
-	public void JsAlert(By jsAlertSelector ) {
+	public void jsAlert(By jsAlertSelector) {
 		Allure.step("Handling JS Alert", () -> {
 			driver.findElement(jsAlertSelector).click();
-			WebDriverWait wait = new WebDriverWait(driver,30);
-			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+			WebDriverWait alertWait = new WebDriverWait(driver, 30);
+			Alert alert = alertWait.until(ExpectedConditions.alertIsPresent());
 			alert.accept();
 			saveScreenshot("Handle JS Alert");
 		});
 	}
 
-	public void JsConfirmAlert(By jsConfirmbtnSelector) {
+	public void jsConfirmAlert(By jsConfirmbtnSelector) {
 		Allure.step("Handling JS Confirm Alert", () -> {
 			driver.findElement(jsConfirmbtnSelector).click();
 			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
-			alert = wait.until(ExpectedConditions.alertIsPresent());
 			alert.accept();
 			saveScreenshot("Handle JS Confirm Alert");
 		});
 	}
 
-	public void JsPomptAlert(By jsPromtSelector, String sendtext) {
-		Allure.step("Handling JS Prompt Alert with text: " + sendtext, () -> {
+	public void jsPromptAlert(By jsPromtSelector, String sendText) {
+		Allure.step("Handling JS Prompt Alert with text: " + sendText, () -> {
 			driver.findElement(jsPromtSelector).click();
 			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
 
-			alert.sendKeys(sendtext);
+			alert.sendKeys(sendText);
 			alert.accept();
 			saveScreenshot("Handle JS Prompt Alert");
 		});
 	}
 
-	public void rightClickHandle(By Locator ) {
+	public void rightClickHandle(By locator) {
 		Allure.step("Right clicking on element", () -> {
-			Actions actions = new Actions(driver);
-			WebElement RightClickPlaceElem = driver.findElement(Locator);
-			actions.contextClick(RightClickPlaceElem).perform();
-			LogUtils.info("Right click found text: " + RightClickPlaceElem.getText());
+			Actions rightClickActions = new Actions(driver);
+			WebElement rightClickPlaceElem = driver.findElement(locator);
+			rightClickActions.contextClick(rightClickPlaceElem).perform();
+			LogUtils.info("Right click found text: " + rightClickPlaceElem.getText());
 
-			WebDriverWait wait = new WebDriverWait(driver,30);
-			Alert alert = wait.until(ExpectedConditions.alertIsPresent());
+			WebDriverWait alertWait = new WebDriverWait(driver, 30);
+			Alert alert = alertWait.until(ExpectedConditions.alertIsPresent());
 			alert.accept();
 			saveScreenshot("Right Click");
 		});
@@ -295,7 +293,6 @@ public class Keyword {
 
 	public void hoverOnElement(WebElement element) {
 		Allure.step("Hovering on element", () -> {
-			Actions actions = new Actions(driver);
 			actions.moveToElement(element).build().perform();
 			LogUtils.info("Element Hovered: " + element.getText());
 			saveScreenshot("Hover Element");

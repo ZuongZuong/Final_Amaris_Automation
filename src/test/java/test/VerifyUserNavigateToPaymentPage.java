@@ -22,8 +22,9 @@ public class VerifyUserNavigateToPaymentPage extends BaseTest {
     @TmsLink("TMS-456")
     @Test(description = "Verify User Able To Backwards")
     public void verifyUserAbleToBackwards(Method method) throws InterruptedException {
-        DashboardPage dashboardPage = new DashboardPage(driver);
-        dashboardPage.selectTripOption("Solo ida");
+        DashboardPage dashboardPage = new DashboardPage(getDriver());
+        dashboardPage.acceptCookies();
+        dashboardPage.selectTripOption("One way");
         dashboardPage.selectDepature("Valencia (VLC)");
         dashboardPage.selectDestination("Barcelona (BCN)");
         dashboardPage.setTextDeparture(DateTimeUtils.getFutureDate(1));

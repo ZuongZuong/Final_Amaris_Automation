@@ -3,7 +3,7 @@ pipeline {
 
     parameters {
         choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Select browser for execution')
-        string(name: 'URL', defaultValue: 'https://www.iberia.com/vn/', description: 'Base URL for the application')
+        string(name: 'URL', defaultValue: 'https://www.iberia.com/', description: 'Base URL for the application')
         choice(name: 'HEADLESS', choices: ['true', 'false'], description: 'Run tests in headless mode')
     }
 
@@ -13,15 +13,6 @@ pipeline {
     }
 
     stages {
-        stage('Initialize') {
-            steps {
-                script {
-                    echo "Starting automation execution on ${params.BROWSER} browser"
-                    echo "Target URL: ${params.URL}"
-                    echo "Headless mode: ${params.HEADLESS}"
-                }
-            }
-        }
 
         stage('Checkout') {
             steps {
@@ -29,7 +20,7 @@ pipeline {
             }
         }
 
-        stage('Build & Test') {
+        stage('Build & Execute Tests') {
             steps {
                 sh """
                     mvn clean test \
@@ -44,19 +35,15 @@ pipeline {
 
     post {
         always {
-            script {
-                allure includeProperties: false, 
-                       jdk: '', 
-                       results: [[path: 'target/allure-results']]
-            }
+            allure results: [[path: 'target/allure-results']]
         }
-        
+
         success {
-            echo 'Automation Test successfully completed!'
+            echo '✅ Automation Test successfully completed!'
         }
-        
+
         failure {
-            echo 'Automation Test failed. Please check the Allure report and console logs.'
+            echo '❌ Automation Test failed. Please check Allure report and logs.'
         }
 
         cleanup {
