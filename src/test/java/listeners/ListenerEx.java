@@ -39,6 +39,6 @@ public class ListenerEx implements ITestListener {
 
     @Override
     public void onTestSkipped(ITestResult result) {
-        LogUtils.info("Test Skipped: " + result.getName());
+        LogUtils.info("Test Skipped (or will be retried): " + result.getName());
     }
 }
