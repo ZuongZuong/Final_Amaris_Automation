@@ -7,6 +7,11 @@ pipeline {
         choice(name: 'HEADLESS', choices: ['true', 'false'], description: 'Run tests in headless mode')
     }
 
+    environment {
+        MAVEN_HOME = tool 'Maven 3'
+        PATH = "${env.MAVEN_HOME}/bin:${env.PATH}"
+    }
+
     stages {
         stage('Initialize') {
             steps {
@@ -14,10 +19,13 @@ pipeline {
                     echo "Starting automation execution on ${params.BROWSER} browser"
                     echo "Target URL: ${params.URL}"
                     echo "Headless mode: ${params.HEADLESS}"
-                    
-                    // Display Maven version to verify it's on the PATH
-                    sh 'mvn -version'
                 }
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                checkout scm
             }
         }
 
@@ -37,17 +45,9 @@ pipeline {
     post {
         always {
             script {
-                // The 'allure' step requires the 'Allure Jenkins Plugin' to be installed.
-                // If it's not installed, this block might still fail with NoSuchMethodError.
-                // Ensure the plugin is installed in Jenkins -> Manage Jenkins -> Plugins.
-                try {
-                    allure includeProperties: false, 
-                           jdk: '', 
-                           results: [[path: 'target/allure-results']]
-                } catch (Exception e) {
-                    echo "Could not generate Allure report. Please ensure 'Allure Jenkins Plugin' is installed."
-                    echo "Error: ${e.message}"
-                }
+                allure includeProperties: false, 
+                       jdk: '', 
+                       results: [[path: 'target/allure-results']]
             }
         }
         
@@ -56,7 +56,7 @@ pipeline {
         }
         
         failure {
-            echo 'Automation Test failed. Please check the console logs.'
+            echo 'Automation Test failed. Please check the Allure report and console logs.'
         }
 
         cleanup {
