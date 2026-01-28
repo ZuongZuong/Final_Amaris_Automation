@@ -46,3 +46,4 @@ screenshots/
 # Reports
 allure-results/
 allure-report/
+.allure/

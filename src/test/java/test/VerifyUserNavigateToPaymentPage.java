@@ -1,7 +1,7 @@
 package test;
 
 import io.qameta.allure.*;
-import listeners.AllureTestListener;
+import listeners.ListenerEx;
 import org.testng.annotations.Test;
 import org.testng.annotations.Listeners;
 import page.DashboardPage;
@@ -9,24 +9,25 @@ import utils.DateTimeUtils;
 
 import java.lang.reflect.Method;
 
-@Listeners(AllureTestListener.class)
+@Epic("Regression Tests")
+@Feature("Navigation")
+@Listeners(ListenerEx.class)
 public class VerifyUserNavigateToPaymentPage extends BaseTest {
 
+    @Story("User navigates to payment page")
     @Description("This test case is created to verify that user can see error message after clicking on backwards")
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("ZuongZuong")
+    @Issue("ISSUE-123")
+    @TmsLink("TMS-456")
     @Test(description = "Verify User Able To Backwards")
     public void verifyUserAbleToBackwards(Method method) throws InterruptedException {
         DashboardPage dashboardPage = new DashboardPage(driver);
         dashboardPage.selectTripOption("One way");
-        takeScreenShot(method.getName());
         dashboardPage.selectDepature("Valencia (VLC)");
-        takeScreenShot(method.getName());
         dashboardPage.selectDestination("Barcelona (BCN)");
-        takeScreenShot(method.getName());
         dashboardPage.setTextDeparture(DateTimeUtils.getFutureDate(1));
-        takeScreenShot(method.getName());
         dashboardPage.clickSearch();
-        takeScreenShot(method.getName());
-
     }
 
 }
