@@ -1,4 +1,5 @@
 package configuration;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -7,15 +8,22 @@ import java.util.Properties;
 
 public class Configuration {
 
-	private  Properties prop;
-	private  InputStream input;
-	private  String filePath;
+	private Properties prop;
+	private InputStream input;
+	private String filePath;
 
 	public Configuration(String filePath) {
 		this.filePath = filePath;
 	}
 
-	public  String getProperty(String propertyName) {
+	public String getProperty(String propertyName) {
+		// Check if there is a system property override (from command line
+		// -DpropName=value)
+		String systemProp = System.getProperty(propertyName);
+		if (systemProp != null && !systemProp.isEmpty()) {
+			return systemProp;
+		}
+
 		String result = "";
 		try {
 			prop = new Properties();
@@ -31,11 +39,12 @@ public class Configuration {
 		} catch (Exception e) {
 			System.out.println("Exception: " + e);
 		} finally {
-			try {
-				input.close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (input != null) {
+				try {
+					input.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 
