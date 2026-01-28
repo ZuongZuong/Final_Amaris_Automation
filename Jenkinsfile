@@ -40,6 +40,18 @@ pipeline {
                 """
             }
         }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    // This requires the 'SonarQube Scanner for Jenkins' plugin
+                    // 'SonarQube' should match the name in Manage Jenkins -> Configure System
+                    withSonarQubeEnv('SonarQube') {
+                        sh "mvn sonar:sonar"
+                    }
+                }
+            }
+        }
     }
 
     post {

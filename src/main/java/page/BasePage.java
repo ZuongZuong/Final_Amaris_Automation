@@ -1,16 +1,14 @@
 package page;
 
 import org.openqa.selenium.WebDriver;
-
 import action.Keyword;
 import org.openqa.selenium.support.PageFactory;
 
-public class BasePage {
-    public WebDriver driver;
-    public Keyword keyword;
+public abstract class BasePage {
+    protected WebDriver driver;
+    protected Keyword keyword;
 
-    public BasePage(WebDriver driver) {
-        super();
+    protected BasePage(WebDriver driver) {
         this.driver = driver;
         this.keyword = new Keyword(driver);
         PageFactory.initElements(driver, this);
