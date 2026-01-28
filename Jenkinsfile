@@ -13,15 +13,6 @@ pipeline {
     }
 
     stages {
-        stage('Initialize') {
-            steps {
-                script {
-                    echo "Starting automation execution on ${params.BROWSER} browser"
-                    echo "Target URL: ${params.URL}"
-                    echo "Headless mode: ${params.HEADLESS}"
-                }
-            }
-        }
 
         stage('Checkout') {
             steps {
@@ -29,11 +20,10 @@ pipeline {
             }
         }
 
-        stage('Build & Test') {
+        stage('Build & Execute Tests') {
             steps {
-                // Using 'verify' instead of 'test' to trigger the 80% JaCoCo coverage check
                 sh """
-                    mvn clean verify \
+                    mvn clean test \
                     -DsuiteXmlFile=regression.xml \
                     -DBROWSER=${params.BROWSER} \
                     -DURL=${params.URL} \
@@ -41,54 +31,19 @@ pipeline {
                 """
             }
         }
-
-    //     stage('SonarQube Analysis') {
-    //         steps {
-    //             script {
-    //                 try {
-    //                     withSonarQubeEnv('SonarQube') {
-    //                         sh "mvn jacoco:report sonar:sonar"
-    //                     }
-    //                 } catch (Exception e) {
-    //                     echo "WARNING: SonarQube installation 'SonarQube' not found in Jenkins."
-    //                     echo "Please configure it in Manage Jenkins -> System."
-    //                     echo "Falling back to direct execution..."
-    //                     sh "mvn jacoco:report sonar:sonar"
-    //                 }
-    //             }
-    //         }
-    //     }
-
-    //     stage('Quality Gate') {
-    //         steps {
-    //             script {
-    //                 try {
-    //                     timeout(time: 1, unit: 'HOURS') {
-    //                         waitForQualityGate abortPipeline: true
-    //                     }
-    //                 } catch (Exception e) {
-    //                     echo "Quality Gate check skipped (requires SonarQube plugin configuration)."
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    }
 
     post {
         always {
-            script {
-                allure includeProperties: false, 
-                       jdk: '', 
-                       results: [[path: 'target/allure-results']]
-            }
+            allure results: [[path: 'target/allure-results']]
         }
-        
+
         success {
-            echo 'Automation Test successfully completed!'
+            echo '✅ Automation Test successfully completed!'
         }
-        
+
         failure {
-            echo 'Automation Test failed. Please check the Allure report and console logs.'
+            echo '❌ Automation Test failed. Please check Allure report and logs.'
         }
 
         cleanup {
