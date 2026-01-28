@@ -9,8 +9,6 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import constants.FrameworkConstants;
 import enums.Target;
 import exceptions.TargetNotValidException;
-import utils.LogUtils;
-
 
 public class TargetFactory {
 
@@ -42,10 +40,11 @@ public class TargetFactory {
 
             remoteWebDriver = new RemoteWebDriver(new URL(gridURL), capability);
         } catch (java.net.MalformedURLException e) {
-//            LogUtils.error("Grid URL is invalid or Grid Port is not available");
-//            LogUtils.error(String.format("Browser: %s", capability.getBrowserName()), e);
+            // LogUtils.error("Grid URL is invalid or Grid Port is not available");
+            // LogUtils.error(String.format("Browser: %s", capability.getBrowserName()), e);
         } catch (IllegalArgumentException e) {
-//            LogUtils.error(String.format("Browser %s is not valid or recognized", capability.getBrowserName()), e);
+            // LogUtils.error(String.format("Browser %s is not valid or recognized",
+            // capability.getBrowserName()), e);
         }
 
         return remoteWebDriver;

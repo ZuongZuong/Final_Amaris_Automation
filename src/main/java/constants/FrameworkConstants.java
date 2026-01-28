@@ -19,5 +19,4 @@ public class FrameworkConstants {
         System.out.println(TARGET);
     }
 
-
 }

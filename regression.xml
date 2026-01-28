@@ -5,6 +5,7 @@
     <!-- Register listener -->
     <listeners>
         <listener class-name="listeners.ListenerEx"/>
+        <listener class-name="listeners.AnnotationTransformer"/>
     </listeners>
 
     <!-- Test block -->
