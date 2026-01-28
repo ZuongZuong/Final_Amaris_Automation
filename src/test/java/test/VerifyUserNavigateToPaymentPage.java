@@ -23,7 +23,7 @@ public class VerifyUserNavigateToPaymentPage extends BaseTest {
     @Test(description = "Verify User Able To Backwards")
     public void verifyUserAbleToBackwards(Method method) throws InterruptedException {
         DashboardPage dashboardPage = new DashboardPage(driver);
-        dashboardPage.selectTripOption("One way");
+        dashboardPage.selectTripOption("Solo ida");
         dashboardPage.selectDepature("Valencia (VLC)");
         dashboardPage.selectDestination("Barcelona (BCN)");
         dashboardPage.setTextDeparture(DateTimeUtils.getFutureDate(1));
