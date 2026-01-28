@@ -3,7 +3,7 @@ pipeline {
 
     parameters {
         choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Select browser for execution')
-        string(name: 'URL', defaultValue: 'https://www.iberia.com/vn/', description: 'Base URL for the application')
+        string(name: 'URL', defaultValue: 'https://www.iberia.com/', description: 'Base URL for the application')
         choice(name: 'HEADLESS', choices: ['true', 'false'], description: 'Run tests in headless mode')
     }
 
