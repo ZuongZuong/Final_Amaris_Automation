@@ -31,6 +31,7 @@ public class VerifyUserNavigateToPaymentPage extends BaseTest {
         dashboardPage.clickSearch();
         System.out.println("Duong Do");
         System.out.println("Test");
+        System.out.println("Test");
     }
 
 }
