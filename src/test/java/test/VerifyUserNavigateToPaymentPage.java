@@ -30,6 +30,7 @@ public class VerifyUserNavigateToPaymentPage extends BaseTest {
         dashboardPage.setTextDeparture(DateTimeUtils.getFutureDate(1));
         dashboardPage.clickSearch();
         System.out.println("Duong Do");
+        System.out.println("Test");
     }
 
 }
