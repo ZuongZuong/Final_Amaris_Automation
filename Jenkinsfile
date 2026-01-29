@@ -54,7 +54,6 @@ pipeline {
         
         success {
             echo 'Automation Test successfully completed!'
-            echo 'test'
         }
         
         failure {
