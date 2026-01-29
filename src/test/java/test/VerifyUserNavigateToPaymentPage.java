@@ -29,6 +29,7 @@ public class VerifyUserNavigateToPaymentPage extends BaseTest {
         dashboardPage.selectDestination("Barcelona (BCN)");
         dashboardPage.setTextDeparture(DateTimeUtils.getFutureDate(1));
         dashboardPage.clickSearch();
+        System.out.println("Duong Do");
     }
 
 }
